@@ -16,6 +16,7 @@ class Web
 	this()
 	{
 		httpd = new HttpServer();
+		httpd.log = log;
 		httpd.handleRequest = &onRequest;
 		httpd.listen(config.port, config.addr);
 	}
