@@ -1,0 +1,9 @@
+/ghdaemon.ini
+/cache/
+/logs/
+
+*.exe
+*.pdb
+*.ilk
+*.exp
+*.lib
