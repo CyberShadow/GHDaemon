@@ -54,9 +54,10 @@ void queueComponent(string component)
 					(pull)
 					{
 						auto n = pull["number"].integer.to!string;
+						string url = pull["statuses_url"].str ~ "?per_page=100";
 						queue ~=
 						{
-							githubQuery(pull["statuses_url"].str ~ "?per_page=100",
+							githubQuery(url,
 							(JSONValue v)
 							{
 								string state = "pending";
