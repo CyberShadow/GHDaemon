@@ -127,6 +127,7 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 				{
 					debug log("Cache hit");
 					s = cacheEntry.data;
+					callback(parseJSON(s));
 				}
 				else
 				if (response.status == HttpStatusCode.OK)
@@ -139,10 +140,10 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 					cacheEntry.lastModified = response.headers.get("Last-Modified", null);
 					cacheEntry.data = s;
 					write(cacheFileName, toJson(cacheEntry));
+					callback(parseJSON(s));
 				}
 				else
 					log("Error with URL " ~ url ~ ": " ~ text(response.status));
-				callback(parseJSON(s));
 			}
 			scheduleQueue();
 		});
