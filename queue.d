@@ -74,7 +74,7 @@ void queueComponent(string component)
 										state = update["state"].str;
 										break;
 									}
-								states[repo][n] = State(state, v[0]["target_url"].str);
+								states[repo][n] = State(state, v.array.length ? v[0]["target_url"].str : null);
 							});
 						};
 					}
