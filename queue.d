@@ -142,7 +142,7 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 					debug log("Cache miss");
 					scope(failure) std.stdio.writeln(url);
 					scope(failure) std.stdio.writeln(response.headers);
-					s = (cast(string)response.getContent().contents).idup;
+					s = (cast(char[])response.getContent().contents).idup;
 					cacheEntry.etag = response.headers.get("ETag", null);
 					cacheEntry.lastModified = response.headers.get("Last-Modified", null);
 					cacheEntry.data = s;
