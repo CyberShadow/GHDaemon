@@ -40,7 +40,14 @@ void scheduleQueue()
 	setTimeout(toDelegate(&nextQueued), queueInterval);
 }
 
-string[string][string] states;
+struct State
+{
+	string state; // pending/success/failure
+	string targetUrl;
+}
+
+/// states[repo][n]
+State[string][string] states;
 
 void queueComponent(string component)
 {
@@ -67,7 +74,7 @@ void queueComponent(string component)
 										state = update["state"].str;
 										break;
 									}
-								states[repo][n] = state;
+								states[repo][n] = State(state, v[0]["target_url"].str);
 							});
 						};
 					}
