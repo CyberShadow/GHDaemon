@@ -44,6 +44,7 @@ struct State
 {
 	string state; // pending/success/failure
 	string targetUrl;
+	string description;
 }
 
 /// states[repo][n]
@@ -68,13 +69,19 @@ void queueComponent(string component)
 							(JSONValue v)
 							{
 								string state = "pending";
+								string description;
 								foreach (update; v.array)
 									if (update["state"].str != "pending")
 									{
 										state = update["state"].str;
+										description = update["description"].str;
 										break;
 									}
-								states[repo][n] = State(state, v.array.length ? v[0]["target_url"].str : null);
+								states[repo][n] = State(
+									state,
+									v.array.length ? v[0]["target_url"].str : null,
+									description,
+								);
 							});
 						};
 					}
