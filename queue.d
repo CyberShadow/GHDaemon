@@ -110,7 +110,10 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 			debug log("Loading cached result.");
 			callback(parseJSON(cacheEntry.data));
 			if (!queue.length)
+			{
+				debug log("Done loading cache (complete).");
 				loadingCache = false;
+			}
 			return nextQueued();
 		}
 
@@ -120,7 +123,11 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 			request.headers["If-Modified-Since"] = cacheEntry.lastModified;
 	}
 	else
-		loadingCache = false;
+		if (loadingCache)
+		{
+			debug log("Done loading cache (incomplete).");
+			loadingCache = false;
+		}
 
 	httpRequest(request,
 		(HttpResponse response, string disconnectReason)
