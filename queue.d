@@ -8,12 +8,15 @@ import std.json;
 import std.string;
 
 import ae.net.http.client;
+import ae.net.ietf.url;
 import ae.sys.data;
 import ae.sys.timing;
 import ae.utils.array;
 import ae.utils.json;
 
 import common;
+
+static import std.stdio;
 
 void delegate()[] queue;
 
@@ -136,36 +139,49 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 			loadingCache = false;
 		}
 
-	httpRequest(request,
-		(HttpResponse response, string disconnectReason)
+	void resultHandler(HttpResponse response, string disconnectReason)
+	{
+		if (!response)
+			log("Error with URL " ~ url ~ ": " ~ disconnectReason);
+		else
 		{
-			if (!response)
-				log("Error with URL " ~ url ~ ": " ~ disconnectReason);
-			else
+			string s;
+			if (response.status == HttpStatusCode.NotModified)
 			{
-				string s;
-				if (response.status == HttpStatusCode.NotModified)
-				{
-					debug log("Cache hit");
-					s = cacheEntry.data;
-					callback(parseJSON(s));
-				}
-				else
-				if (response.status == HttpStatusCode.OK)
-				{
-					debug log("Cache miss");
-					scope(failure) std.stdio.writeln(url);
-					scope(failure) std.stdio.writeln(response.headers);
-					s = (cast(char[])response.getContent().contents).idup;
-					cacheEntry.etag = response.headers.get("ETag", null);
-					cacheEntry.lastModified = response.headers.get("Last-Modified", null);
-					cacheEntry.data = s;
-					write(cacheFileName, toJson(cacheEntry));
-					callback(parseJSON(s));
-				}
-				else
-					log("Error with URL " ~ url ~ ": " ~ text(response.status));
+				debug log("Cache hit");
+				s = cacheEntry.data;
+				callback(parseJSON(s));
 			}
-			scheduleQueue();
-		});
+			else
+			if (response.status == HttpStatusCode.OK)
+			{
+				debug log("Cache miss");
+				scope(failure) std.stdio.writeln(url);
+				scope(failure) std.stdio.writeln(response.headers);
+				s = (cast(char[])response.getContent().contents).idup;
+				cacheEntry.etag = response.headers.get("ETag", null);
+				cacheEntry.lastModified = response.headers.get("Last-Modified", null);
+				cacheEntry.data = s;
+				write(cacheFileName, toJson(cacheEntry));
+				callback(parseJSON(s));
+			}
+			else
+			if (response.status >= 300 && response.status < 400 && "Location" in response.headers)
+			{
+				auto location = response.headers["Location"];
+				log(" > Redirect: " ~ location);
+				request.resource = applyRelativeURL(request.url, location);
+				if (response.status == HttpStatusCode.SeeOther)
+				{
+					request.method = "GET";
+					request.data = null;
+				}
+				httpRequest(request, &resultHandler);
+			}
+			else
+				log("Error with URL " ~ url ~ ": " ~ text(response.status));
+		}
+		scheduleQueue();
+	}
+	httpRequest(request, &resultHandler);
 }
