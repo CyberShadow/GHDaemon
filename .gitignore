@@ -2,6 +2,8 @@
 /cache/
 /logs/
 
+/ghdaemon
+
 *.exe
 *.pdb
 *.ilk
