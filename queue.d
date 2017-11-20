@@ -111,10 +111,22 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 	auto cacheFileName = "cache/" ~ toHexString(hash);
 
 	CacheEntry cacheEntry;
-	if (cacheFileName.exists)
+	bool cacheOK;
+	if (!cacheFileName.exists)
+		cacheOK = false;
+	else
 	{
-		cacheEntry = jsonParse!CacheEntry(readText(cacheFileName));
+		try
+		{
+			cacheEntry = jsonParse!CacheEntry(readText(cacheFileName));
+			cacheOK = true;
+		}
+		catch (Exception)
+			cacheOK = false;
+	}
 
+	if (cacheOK)
+	{
 		if (loadingCache)
 		{
 			debug log("Loading cached result.");
