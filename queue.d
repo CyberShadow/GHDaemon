@@ -132,7 +132,7 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 	{
 		if (loadingCache)
 		{
-			debug log("Loading cached result.");
+			debug log("Loading cached result: " ~ cacheFileName);
 			callback(parseJSON(cacheEntry.data));
 			if (!queue.length)
 			{
@@ -163,7 +163,7 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 			string s;
 			if (response.status == HttpStatusCode.NotModified)
 			{
-				debug log("Cache hit");
+				debug log("Cache hit: " ~ cacheFileName);
 				s = cacheEntry.data;
 				callback(parseJSON(s));
 			}
