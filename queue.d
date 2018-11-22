@@ -69,23 +69,23 @@ void queueComponent(string component)
 						queue ~=
 						{
 							githubQuery(url,
-							(JSONValue v)
-							{
-								string state = "pending";
-								string description;
-								foreach (update; v.array)
-									if (update["state"].str != "pending")
-									{
-										state = update["state"].str;
-										description = update["description"].str;
-										break;
-									}
-								states[repo][n] = State(
-									state,
-									v.array.length ? v[0]["target_url"].str : null,
-									description,
-								);
-							});
+								(JSONValue v)
+								{
+									string state = "pending";
+									string description;
+									foreach (update; v.array)
+										if (update["state"].str != "pending")
+										{
+											state = update["state"].str;
+											description = update["description"].str;
+											break;
+										}
+									states[repo][n] = State(
+										state,
+										v.array.length ? v[0]["target_url"].str : null,
+										description,
+									);
+								});
 						};
 					}
 					(pull);
