@@ -16,14 +16,15 @@ import ae.utils.json;
 
 import common;
 
-static import std.stdio;
+struct State
+{
+	string state; // pending/success/failure
+	string targetUrl;
+	string description;
+}
 
-void delegate()[] queue;
-
-debug
-	enum queueInterval = 1.seconds;
-else
-	enum queueInterval = 5.seconds;
+/// states[repo][n]
+State[string][string] states;
 
 void nextQueued()
 {
@@ -37,21 +38,22 @@ void nextQueued()
 	queue.shift()();
 }
 
+private:
+
+static import std.stdio;
+
+void delegate()[] queue;
+
+debug
+	enum queueInterval = 1.seconds;
+else
+	enum queueInterval = 5.seconds;
+
 void scheduleQueue()
 {
 	debug log("Scheduling next request...");
 	setTimeout(toDelegate(&nextQueued), queueInterval);
 }
-
-struct State
-{
-	string state; // pending/success/failure
-	string targetUrl;
-	string description;
-}
-
-/// states[repo][n]
-State[string][string] states;
 
 void queueComponent(string component)
 {
