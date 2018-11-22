@@ -191,7 +191,7 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 					request.method = "GET";
 					request.data = null;
 				}
-				httpRequest(request, &resultHandler);
+				return httpRequest(request, &resultHandler);
 			}
 			else
 				log("Error with URL " ~ url ~ ": " ~ text(response.status));
