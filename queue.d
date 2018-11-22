@@ -105,7 +105,8 @@ void githubQuery(string url, void delegate(JSONValue) callback)
 {
 	auto request = new HttpRequest;
 	request.resource = url;
-	request.headers["Authorization"] = "token " ~ config.token;
+	if (config.token)
+		request.headers["Authorization"] = "token " ~ config.token;
 
 	ubyte[16] hash = md5Of(url);
 	auto cacheFileName = "cache/" ~ toHexString(hash);
